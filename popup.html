@@ -5,7 +5,40 @@
     <link rel="stylesheet" href="styles/button.css">
   </head>
   <body>
-    <h1>Hello World</h1>
+    <div id="mainDiv">
+
+      <!-- header with image -->
+      <div id="header">
+        <img class="imgLogo" src="/images/white_logo_transparent_background.png" alt="Work Smart Logo">
+      </div>
+
+      <!-- timer with plus/minus buttons -->
+      <div id="timerSection">
+        <img id="removeTimeBtn" src="/images/minus.png" alt="remove time">
+        <h2 id="actualTimer">5: 00</h2>
+        <img id="addTimeBtn" src="/images/plus.png" alt="add time">
+      </div>
+
+      <!-- progress bar -->
+      <div id="progressBar">
+        <div id="progress">
+          <div id="progressDone"></div>
+        </div>
+      </div>
+
+      <!-- start,end,expand buttons -->
+      <div id="buttonsSection">
+        <button id="start">Start Focus</button>
+        <button id="give-up">Give Up</button>
+      </div>
+
+      <div id="expandSection">
+        <img src="/images/expand.png" alt="open settings">
+      </div>
+
+      <!-- settings section -->
+      <div id="settingsSection" class="hidden"></div>
+    </div>
 
     <script src="popup.js"></script>
     <script src="settings.js"></script>
