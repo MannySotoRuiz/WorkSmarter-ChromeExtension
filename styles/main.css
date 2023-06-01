@@ -257,7 +257,7 @@ ul li::before {
   display: flex;
   flex-direction: row;
   width: 100%;
-  border: 1px solid red;
+  /* border: 1px solid red; */
 }
 
 .blockedSite {
