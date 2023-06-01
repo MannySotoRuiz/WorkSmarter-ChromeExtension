@@ -118,12 +118,13 @@ body {
   width: 0;
   background: linear-gradient(to left, #f2709c, #ff9472);
   box-shadow: 0 3px 3px -5px #f2709c, 0 2px 5px #f2709c;
-  font-family: "Montserrat", sans-serif;
   border-radius: 20px;
   display: flex;
   align-items: center;
   justify-content: center;
   transition: 1s ease;
+  font-size: 15px;
+  font-weight: 500;
 }
 
 /* /////////////////////////////////////////////////// */
@@ -152,10 +153,11 @@ body {
   width: 55px;
   height: 45px;
   border-radius: 15%;
+  opacity: 0.5;
   background: rgb(250, 69, 109);
   color: #000000;
   display: inline-block;
-  cursor: pointer;
+  cursor: not-allowed;
 }
 
 #reset {
@@ -196,6 +198,10 @@ body {
   gap: 10px;
 }
 
+.form_label {
+  font-size: 15px;
+  font-weight: 600;
+}
 .form__input {
   font-family: "Roboto", sans-serif;
   color: #333;
@@ -211,7 +217,7 @@ body {
   transition: all 0.3s;
 }
 
-#submit {
+#submitUrlBtn {
   width: 90px;
   height: 30px;
   border-radius: 5px;
@@ -246,22 +252,44 @@ ul li::before {
   margin-left: 0px;
 }
 
+.newBlockedSiteDiv {
+  font-size: 13px;
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  border: 1px solid red;
+}
+
+.blockedSite {
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.blockedSite p {
+  flex: 1 1 0%;
+}
+
+.deleteUrlBtn {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+}
+.deleteUrlBtn img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
 #clearAllURLS {
   width: 100%;
-  display: flex;
-  flex-direction: row-reverse;
   padding-right: 10px;
+  padding-bottom: 10px;
 }
 
 #clearBtn {
   padding: 5px 10px 5px 10px; /*top right bottom left */
   border-radius: 4px;
   float: right;
-}
-
-.emojiDeleteURL {
-  float: right;
-  margin-right: 15px;
-  width: 8%;
 }
 /* //////////////////////////////////////////////// */
