@@ -18,21 +18,58 @@ let timerInterval;
 const blockedDomains = [];
 
 /////////////////////// event listeners ///////////////////////
-// event listener to open settings
-expandBtn.addEventListener("click", function () {
+expandBtn.addEventListener("click", openSettings); // open settings
+collapseBtn.addEventListener("click", closeSettings); // close settings
+startBtn.addEventListener("click", startTimer); // start timer
+giveUpBtn.addEventListener("click", giveUp); // end timer
+submitUrlBtn.addEventListener("click", submitUrl); // add url to blocked domains list
+/////////////////////// end event listeners ////////////////////
+
+/////////////////////// functions //////////////////////////////
+function updateTimer() {
+  currentTime--;
+  const minutes = Math.floor(currentTime / 60);
+  const seconds = currentTime % 60;
+  timerDisplay.textContent = `${minutes}: ${seconds >= 1 ? seconds : "00"}`; // update timer display
+
+  // update progress bar
+  const originalTotalTime = startingTime * 60;
+  const timePercent = Math.abs(currentTime / originalTotalTime - 1) * 100; // find time in percentage
+  const timeInPixels = 200 * (roundTime(timePercent) / 100);
+  progressBar.textContent = `${roundTime(timePercent)}%`;
+  progressBar.style.width = `${timeInPixels}px`;
+
+  if (currentTime <= 0) {
+    clearInterval(timerInterval);
+  }
+}
+
+function roundTime(num) {
+  const m = Number((Math.abs(num) * 100).toPrecision(15));
+  return (Math.round(m) / 100) * Math.sign(num);
+}
+
+function reset() {
+  startingTime = 5;
+  currentTime = startingTime * 60;
+  progressBar.textContent = "";
+  progressBar.style.width = "0px";
+  timerDisplay.textContent = "5: 00"; // update timer display
+}
+
+function openSettings() {
   settingsSection.style.display = "flex";
   expandBtn.classList.add("hidden");
   collapseBtn.classList.remove("hidden");
-});
+}
 
-// event listener to close settings
-collapseBtn.addEventListener("click", function () {
+function closeSettings() {
   settingsSection.style.display = "none";
   expandBtn.classList.remove("hidden");
   collapseBtn.classList.add("hidden");
-});
+}
 
-startBtn.addEventListener("click", function () {
+function startTimer() {
   // hide add/remove buttons
   removeTimeBtn.classList.add("hidden");
   addTimeBtn.classList.add("hidden");
@@ -44,14 +81,14 @@ startBtn.addEventListener("click", function () {
   giveUpBtn.style.opacity = "1";
   giveUpBtn.disabled = false;
   timerInterval = setInterval(updateTimer, 1000);
-});
+}
 
-giveUpBtn.addEventListener("click", function () {
+function giveUp() {
   clearInterval(timerInterval);
   reset();
-});
+}
 
-submitUrlBtn.addEventListener("click", function () {
+function submitUrl() {
   const urlToAdd = document.getElementById("urlForm").value;
   if (ifValidURL(urlToAdd)) {
     if (blockedDomains.includes(urlToAdd)) {
@@ -99,39 +136,6 @@ submitUrlBtn.addEventListener("click", function () {
   } else {
     document.getElementById("incorrectFormat").classList.remove("hidden");
   }
-});
-/////////////////////// end event listeners ////////////////////
-
-/////////////////////// functions //////////////////////////////
-function updateTimer() {
-  currentTime--;
-  const minutes = Math.floor(currentTime / 60);
-  const seconds = currentTime % 60;
-  timerDisplay.textContent = `${minutes}: ${seconds >= 1 ? seconds : "00"}`; // update timer display
-
-  // update progress bar
-  const originalTotalTime = startingTime * 60;
-  const timePercent = Math.abs(currentTime / originalTotalTime - 1) * 100; // find time in percentage
-  const timeInPixels = 200 * (roundTime(timePercent) / 100);
-  progressBar.textContent = `${roundTime(timePercent)}%`;
-  progressBar.style.width = `${timeInPixels}px`;
-
-  if (currentTime <= 0) {
-    clearInterval(timerInterval);
-  }
-}
-
-function roundTime(num) {
-  const m = Number((Math.abs(num) * 100).toPrecision(15));
-  return (Math.round(m) / 100) * Math.sign(num);
-}
-
-function reset() {
-  startingTime = 5;
-  currentTime = startingTime * 60;
-  progressBar.textContent = "";
-  progressBar.style.width = "0px";
-  timerDisplay.textContent = "5: 00"; // update timer display
 }
 
 // method to see if user input is a valid URL input
