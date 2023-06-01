@@ -28,6 +28,9 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
   } else if (request.action === "addURL") {
     const { addURL } = request.data;
     addURLToBlockedList(addURL);
+  } else if (request.action === "removeURL") {
+    const { urlToRemove } = request.data;
+    removeURL(urlToRemove);
   }
 });
 
@@ -51,4 +54,14 @@ function endTimer() {
 
 function addURLToBlockedList(addURL) {
   blockedDomains.push(addURL);
+}
+
+function removeURL(url) {
+  for (let i = 0; i < blockedDomains.length; i++) {
+    let testDomain = blockedDomains[i];
+    if (url.includes(testDomain)) {
+      blockedDomains.splice(i, 1);
+      break;
+    }
+  }
 }

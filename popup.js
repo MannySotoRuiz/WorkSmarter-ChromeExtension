@@ -191,6 +191,10 @@ function addDomainToBlockedList(url) {
     clickedUrl.parentElement;
     removeURL(clickedUrl.textContent);
     clickedUrl.parentElement.remove();
+    chrome.runtime.sendMessage({
+      action: "removeURL",
+      data: { urlToRemove: clickedUrl.textContent },
+    });
   });
   newSite.appendChild(deleteUrlBtn);
   newBlockedSiteDiv.appendChild(newSite);
