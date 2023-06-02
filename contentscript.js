@@ -1,8 +1,14 @@
-chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
+chrome.runtime.onMessage.addListener(async function (
+  request,
+  sender,
+  sendResponse
+) {
   if (request.action === "sendDataToContent") {
-    const { remainingTime, ifTimerStarted } = request.data;
+    const req = await request;
+    const data = await req.data;
+    const { remainingTime, ifTimerStarted } = data;
     console.log(remainingTime, ifTimerStarted);
-    let currentTime = remainingTime;
+    let currentTime = await remainingTime;
     if (document.getElementById("timerDiv")) {
       let minutes = Math.floor(remainingTime / 60);
       let seconds = remainingTime % 60;
@@ -10,9 +16,9 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
         seconds >= 1 ? seconds : "00"
       }`;
     }
-    let timerInterval;
-    let ifBackgroundTimerActive = false;
     if (ifTimerStarted) {
+      let timerInterval;
+      let ifBackgroundTimerActive = false;
       if (!document.getElementById("changeBackground")) {
         let quotesOnline = [
           '"Focus on being productive instead of busy." --Tim Ferriss',
@@ -69,7 +75,51 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
           const giveUpBtn = document.createElement("button");
           giveUpBtn.id = "giveUpBtn";
           giveUpBtn.textContent = "Give Up";
+
+          // question div
+          const questionDiv = document.createElement("div");
+          questionDiv.id = "askQuestionDiv";
+          const questionTitle = document.createElement("p");
+          questionTitle.id = "askQuestionTitle";
+          questionTitle.textContent = "Are you sure?";
+          const questionWarning = document.createElement("p");
+          questionWarning.id = "askQuestionWarning";
+          questionWarning.textContent =
+            "This will put you at risk of distractions.";
+          questionDiv.appendChild(questionTitle);
+          questionDiv.appendChild(questionWarning);
+
+          const buttonsDiv = document.createElement("div");
+          buttonsDiv.id = "buttonsDiv";
+          const cancelBtn = document.createElement("button"); // creating the cancel button
+          cancelBtn.id = "cancelBtn";
+          cancelBtn.innerHTML = "Cancel";
+          const yesBtn = document.createElement("button"); // creating the cancel button
+          yesBtn.id = "yesBtn";
+          yesBtn.innerHTML = "Yes";
+
+          cancelBtn.addEventListener("click", function () {
+            giveUpBtn.style.display = "flex";
+            questionDiv.style.display = "none";
+          });
+
+          yesBtn.addEventListener("click", function () {
+            clearInterval(timerInterval);
+            chrome.runtime.sendMessage({ action: "endTimer" });
+            location.reload();
+          });
+
+          buttonsDiv.appendChild(cancelBtn); // adding cancel btn to buttons div
+          buttonsDiv.appendChild(yesBtn); // adding yes btn to buttons div
+          questionDiv.appendChild(buttonsDiv);
+
+          giveUpBtn.addEventListener("click", function () {
+            giveUpBtn.style.display = "none";
+            questionDiv.style.display = "flex";
+          });
+
           injectElement.appendChild(giveUpBtn);
+          injectElement.appendChild(questionDiv);
 
           document.body.appendChild(injectElement);
         }
@@ -110,11 +160,10 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
             }
           }
         }, 1000);
+        console.log(timerInterval);
       }
     } else {
       if (document.getElementById("changeBackground")) {
-        clearInterval(timerInterval);
-        ifBackgroundTimerActive = false;
         document.getElementById("changeBackground").remove(); // remove the blocker screen
         let styles = document.querySelectorAll("link[rel=stylesheet]"); // get stylsheets
         for (let i = 0; i < styles.length; i++) {

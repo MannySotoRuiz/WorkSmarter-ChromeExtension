@@ -27,11 +27,18 @@ let ifBackgroundTimerActive = false;
 // connect with the background script
 const port = chrome.runtime.connect();
 // receive data from the background script
-port.onMessage.addListener(function (message) {
+port.onMessage.addListener(async function (message) {
   if (message.action === "sendData") {
     console.log("got data from background script");
-    const { originalTime, timeRemaining, ifTimerStarted, blockedList } =
-      message.data;
+    const {
+      originalTime,
+      timeRemaining,
+      ifTimerStarted,
+      blockedList,
+      displayReset,
+      previousStartingTime,
+      previousTimeLeft,
+    } = await message.data;
     startingTime = originalTime;
     currentTime = timeRemaining;
     ifBackgroundTimerActive = ifTimerStarted;
@@ -42,9 +49,33 @@ port.onMessage.addListener(function (message) {
     if (ifTimerStarted) {
       startTimer();
     }
+    if (displayReset) {
+      // display reset
+      clearInterval(timerInterval);
+      timerStarted = false;
+      questionContainer.style.display = "none";
+      resetBtn.classList.remove("hidden");
+
+      // using previous data
+      const minutes = Math.floor(previousTimeLeft / 60);
+      const seconds = previousTimeLeft % 60;
+      timerDisplay.textContent = `${minutes}: ${seconds >= 1 ? seconds : "00"}`;
+      const timePercent =
+        Math.abs(previousTimeLeft / previousStartingTime) * 100; // find time in percentage
+      const timeInPixels = 200 * (roundTime(timePercent) / 100);
+      progressBar.textContent = `${roundTime(timePercent)}%`;
+      progressBar.style.width = `${timeInPixels}px`;
+
+      startBtn.style.display = "none";
+      giveUpBtn.style.display = "none";
+      removeTimeBtn.classList.add("hidden");
+      addTimeBtn.classList.add("hidden");
+      console.log(timePercent);
+      console.log(timeInPixels);
+      console.log(previousTimeLeft, previousStartingTime);
+    }
   }
 });
-
 /////////////////////// event listeners ///////////////////////
 expandBtn.addEventListener("click", openSettings); // open settings
 collapseBtn.addEventListener("click", closeSettings); // close settings
@@ -88,6 +119,7 @@ function handleResetClick() {
 
   document.getElementById("cantEdit").classList.add("hidden");
   ifDisableDeleteBtns();
+  clearBtn.disabled = true;
 }
 
 function handleYesClick() {
@@ -164,6 +196,8 @@ function startTimer() {
   document.getElementById("alreadyExists").classList.add("hidden");
   document.getElementById("incorrectFormat").classList.add("hidden");
   ifDisableDeleteBtns();
+
+  clearBtn.disabled = true;
 }
 
 function giveUp() {

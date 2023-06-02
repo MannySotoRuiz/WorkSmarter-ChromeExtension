@@ -1,9 +1,12 @@
 // variables
-let startingTime = 0.2;
+let previousStartingTime;
+let previousTimeLeft;
+let startingTime = 5;
 let currentTime = startingTime * 60;
 let timerInterval;
 let blockedDomains = [];
 let ifTimerStarted = false;
+let displayReset = false;
 
 // establish a connection with the popup script
 chrome.runtime.onConnect.addListener(function (port) {
@@ -15,6 +18,9 @@ chrome.runtime.onConnect.addListener(function (port) {
       timeRemaining: currentTime,
       ifTimerStarted,
       blockedList: blockedDomains,
+      displayReset,
+      previousStartingTime,
+      previousTimeLeft,
     },
   });
 });
@@ -33,10 +39,12 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
     removeURL(urlToRemove);
   } else if (request.action === "clearDomainList") {
     blockedDomains = [];
+  } else if (request.action === "timerEndedFromContent") {
   }
 });
 
 function startTimer(time) {
+  displayReset = false;
   ifTimerStarted = true;
   startingTime = time;
   currentTime = startingTime * 60;
@@ -72,9 +80,12 @@ function startTimer(time) {
 }
 
 function endTimer() {
+  previousStartingTime = startingTime;
+  previousTimeLeft = currentTime;
+  displayReset = true;
   ifTimerStarted = false;
   clearInterval(timerInterval);
-  startingTime = 0.2;
+  startingTime = 5;
   currentTime = startingTime * 60;
   chrome.tabs.query({}, function (tabs) {
     tabs.forEach(function (tab) {
@@ -93,6 +104,7 @@ function endTimer() {
             });
           }
         );
+        chrome.tabs.reload(tab.id);
       }
     });
   });
