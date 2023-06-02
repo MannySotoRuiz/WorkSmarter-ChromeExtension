@@ -331,9 +331,3 @@ function handleRemoveTime() {
   }
 }
 /////////////////////// end of functions ///////////////////////
-
-////////////////// do this when popup is opened ////////////////
-let minutes = Math.floor(currentTime / 60);
-let seconds = currentTime % 60;
-timerDisplay.textContent = `${minutes}: ${seconds >= 1 ? seconds : "00"}`;
-////////////////////////////////////////////////////////////////

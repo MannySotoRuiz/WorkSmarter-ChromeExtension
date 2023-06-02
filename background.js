@@ -47,6 +47,9 @@ function startTimer(time) {
       endTimer();
     }
   }, 1000);
+
+  // check if current active tab needs blocking
+  getCurrentTab();
 }
 
 function endTimer() {
