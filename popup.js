@@ -60,8 +60,9 @@ port.onMessage.addListener(async function (message) {
       const minutes = Math.floor(previousTimeLeft / 60);
       const seconds = previousTimeLeft % 60;
       timerDisplay.textContent = `${minutes}: ${seconds >= 1 ? seconds : "00"}`;
+      const originalTotalTime = previousStartingTime * 60;
       const timePercent =
-        Math.abs(previousTimeLeft / previousStartingTime) * 100; // find time in percentage
+        Math.abs(previousTimeLeft / originalTotalTime - 1) * 100; // find time in percentage
       const timeInPixels = 200 * (roundTime(timePercent) / 100);
       progressBar.textContent = `${roundTime(timePercent)}%`;
       progressBar.style.width = `${timeInPixels}px`;
@@ -73,6 +74,9 @@ port.onMessage.addListener(async function (message) {
       console.log(timePercent);
       console.log(timeInPixels);
       console.log(previousTimeLeft, previousStartingTime);
+
+      clearBtn.disabled = true;
+      ifDisableDeleteBtns(true);
     }
   }
 });
@@ -119,7 +123,8 @@ function handleResetClick() {
 
   document.getElementById("cantEdit").classList.add("hidden");
   ifDisableDeleteBtns();
-  clearBtn.disabled = true;
+  clearBtn.disabled = false;
+  chrome.runtime.sendMessage({ action: "handleResetClick" });
 }
 
 function handleYesClick() {
@@ -297,11 +302,10 @@ function updateBlockedList(blockedList) {
   }
 }
 
-function ifDisableDeleteBtns() {
-  console.log("if disbale buttons", timerStarted);
+function ifDisableDeleteBtns(ifDisplayingResetUI) {
   const allDeleteBtns = document.querySelectorAll(".deleteUrlBtn");
   for (let i = 0; i < allDeleteBtns.length; i++) {
-    if (timerStarted) {
+    if (timerStarted || ifDisplayingResetUI) {
       allDeleteBtns[i].style.display = "none";
     } else {
       allDeleteBtns[i].style.display = "flex";

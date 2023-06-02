@@ -39,7 +39,8 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
     removeURL(urlToRemove);
   } else if (request.action === "clearDomainList") {
     blockedDomains = [];
-  } else if (request.action === "timerEndedFromContent") {
+  } else if (request.action === "handleResetClick") {
+    displayReset = false;
   }
 });
 
