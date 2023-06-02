@@ -61,6 +61,8 @@ cancelBtn.addEventListener("click", closeQuestionContainer);
 yesGiveUpBtn.addEventListener("click", handleYesClick);
 submitUrlBtn.addEventListener("click", submitUrl); // add url to blocked domains list
 clearBtn.addEventListener("click", handleClearList);
+addTimeBtn.addEventListener("click", handleAddTime);
+removeTimeBtn.addEventListener("click", handleRemoveTime);
 /////////////////////// end event listeners ////////////////////
 
 /////////////////////// functions //////////////////////////////
@@ -280,6 +282,52 @@ function handleClearList() {
       allUrls[i].remove();
     }
     chrome.runtime.sendMessage({ action: "clearDomainList" });
+  }
+}
+
+function handleAddTime() {
+  if (startingTime >= 120) {
+    return;
+  }
+  startingTime += 5;
+  currentTime = startingTime * 60;
+  const minutes = Math.floor(currentTime / 60);
+  const seconds = currentTime % 60;
+  timerDisplay.textContent = `${minutes}: ${seconds >= 1 ? seconds : "00"}`;
+
+  // responsive stuff
+  if (startingTime < 10) {
+    addTimeBtn.style.right = "-5px";
+    removeTimeBtn.style.left = "-5px";
+  } else if (startingTime >= 10 && startingTime < 100) {
+    addTimeBtn.style.right = "-10px";
+    removeTimeBtn.style.left = "-10px";
+  } else {
+    addTimeBtn.style.right = "-21px";
+    removeTimeBtn.style.left = "-15px";
+  }
+}
+
+function handleRemoveTime() {
+  if (startingTime === 5) {
+    return;
+  }
+  startingTime -= 5;
+  currentTime = startingTime * 60;
+  const minutes = Math.floor(currentTime / 60);
+  const seconds = currentTime % 60;
+  timerDisplay.textContent = `${minutes}: ${seconds >= 1 ? seconds : "00"}`;
+
+  // responsive stuff
+  if (startingTime < 10) {
+    addTimeBtn.style.right = "-5px";
+    removeTimeBtn.style.left = "-5px";
+  } else if (startingTime >= 10 && startingTime < 100) {
+    addTimeBtn.style.right = "-10px";
+    removeTimeBtn.style.left = "-10px";
+  } else {
+    addTimeBtn.style.right = "-19px";
+    removeTimeBtn.style.left = "-15px";
   }
 }
 /////////////////////// end of functions ///////////////////////

@@ -1,5 +1,5 @@
 // variables
-let startingTime = 0.2;
+let startingTime = 5;
 let currentTime = startingTime * 60;
 let timerInterval;
 let blockedDomains = [];

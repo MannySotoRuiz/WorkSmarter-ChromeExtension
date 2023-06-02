@@ -71,14 +71,15 @@ body {
 }
 
 #actualTimer {
-  font-size: 70px;
-  font-weight: 500;
+  font-size: 67px;
+  font-weight: 600;
+  color: white;
 }
 
 #removeTimeBtn {
   position: absolute;
   top: 38px;
-  left: 0px;
+  left: -5px;
   width: 25%;
   height: 25%;
   object-fit: contain;
@@ -88,7 +89,7 @@ body {
 #addTimeBtn {
   position: absolute;
   top: 35px;
-  right: 0px;
+  right: -5px;
   width: 30%;
   height: 30%;
   object-fit: contain;
