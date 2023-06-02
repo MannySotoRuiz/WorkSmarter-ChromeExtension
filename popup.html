@@ -30,6 +30,14 @@
       <div id="buttonsSection">
         <button id="start">Start Focus</button>
         <button id="give-up" disabled >Give Up</button>
+        <button id="resetBtn" class="hidden">Reset</button>
+        <div id="questionContainer">
+          <p>Are you sure you want to give up</p>
+          <div>
+            <button id="cancel-giveUp">Cancel</button>
+            <button id="yes-giveUp">Yes</button>
+          </div>
+        </div>
       </div>
 
       <div id="expandSection">
@@ -45,9 +53,9 @@
 
         <!-- blocked sites container -->
         <div id="blockedSitesContainer">
-            <h3 class="titleLinks">Blocked Sites: 
-              <span class="hidden warningText" id="limitReached">LIMIT REACHED</span>
-              <span class="hidden warningText" id="alreadyExists">URL ALREADY EXISTS</span>
+            <h3 class="titleLinks">Blocked Websites: 
+              <!-- <span class="hidden warningText" id="limitReached">LIMIT REACHED</span> -->
+              <span class="hidden warningText" id="alreadyExists">DOMAIN ALREADY EXISTS</span>
               <span class="hidden warningText" id="incorrectFormat">INVALID URL INPUT</span>
               <span class="hidden warningText" id="cantEdit">TIMER STARTED/CAN'T MAKE EDITS</span>
             </h3>

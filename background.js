@@ -1,8 +1,8 @@
 // variables
-let startingTime = 1;
+let startingTime = 0.2;
 let currentTime = startingTime * 60;
 let timerInterval;
-const blockedDomains = [];
+let blockedDomains = [];
 let ifTimerStarted = false;
 
 // establish a connection with the popup script
@@ -31,6 +31,8 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
   } else if (request.action === "removeURL") {
     const { urlToRemove } = request.data;
     removeURL(urlToRemove);
+  } else if (request.action === "clearDomainList") {
+    blockedDomains = [];
   }
 });
 

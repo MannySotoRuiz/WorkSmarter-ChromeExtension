@@ -3,6 +3,7 @@ const removeTimeBtn = document.getElementById("removeTimeBtn");
 const addTimeBtn = document.getElementById("addTimeBtn");
 const startBtn = document.getElementById("start");
 const giveUpBtn = document.getElementById("give-up");
+const resetBtn = document.getElementById("resetBtn");
 const progressBar = document.getElementById("progressDone");
 const settingsSection = document.getElementById("settingsSection");
 const expandBtn = document.getElementById("expandBtn");
@@ -10,6 +11,10 @@ const collapseBtn = document.getElementById("collapseBtn");
 const timerDisplay = document.getElementById("actualTimer");
 const submitUrlBtn = document.getElementById("submitUrlBtn");
 const listOfSitesContainer = document.getElementById("ListOfSites");
+const questionContainer = document.getElementById("questionContainer");
+const cancelBtn = document.getElementById("cancel-giveUp");
+const yesGiveUpBtn = document.getElementById("yes-giveUp");
+const clearBtn = document.getElementById("clearBtn");
 
 // variables
 let startingTime = 5;
@@ -51,10 +56,52 @@ startBtn.addEventListener("click", function () {
   });
 }); // start timer
 giveUpBtn.addEventListener("click", giveUp); // end timer
+resetBtn.addEventListener("click", handleResetClick);
+cancelBtn.addEventListener("click", closeQuestionContainer);
+yesGiveUpBtn.addEventListener("click", handleYesClick);
 submitUrlBtn.addEventListener("click", submitUrl); // add url to blocked domains list
+clearBtn.addEventListener("click", handleClearList);
 /////////////////////// end event listeners ////////////////////
 
 /////////////////////// functions //////////////////////////////
+function handleResetClick() {
+  startingTime = 5;
+  currentTime = startingTime * 60;
+  progressBar.textContent = "";
+  progressBar.style.width = "0px";
+  timerDisplay.textContent = "5: 00"; // update timer display
+
+  resetBtn.classList.add("hidden");
+  startBtn.style.display = "flex";
+  giveUpBtn.style.display = "flex";
+  startBtn.style.opacity = "1.0"; // disable start btn
+  startBtn.style.cursor = "pointer";
+  startBtn.disabled = false;
+  giveUpBtn.style.cursor = "not-allowed"; // enable start btn
+  giveUpBtn.style.opacity = "0.5";
+  giveUpBtn.disabled = true;
+
+  removeTimeBtn.classList.remove("hidden");
+  addTimeBtn.classList.remove("hidden");
+
+  document.getElementById("cantEdit").classList.add("hidden");
+  ifDisableDeleteBtns();
+}
+
+function handleYesClick() {
+  clearInterval(timerInterval);
+  timerStarted = false;
+  questionContainer.style.display = "none";
+  resetBtn.classList.remove("hidden");
+  chrome.runtime.sendMessage({ action: "endTimer" });
+}
+
+function closeQuestionContainer() {
+  questionContainer.style.display = "none";
+  startBtn.style.display = "flex";
+  giveUpBtn.style.display = "flex";
+}
+
 function updateTimer() {
   currentTime--;
   const minutes = Math.floor(currentTime / 60);
@@ -70,20 +117,17 @@ function updateTimer() {
 
   if (currentTime <= 0) {
     clearInterval(timerInterval);
+    timerStarted = false;
+    startBtn.style.display = "none";
+    giveUpBtn.style.display = "none";
+    resetBtn.classList.remove("hidden");
+    questionContainer.style.display = "none";
   }
 }
 
 function roundTime(num) {
   const m = Number((Math.abs(num) * 100).toPrecision(15));
   return (Math.round(m) / 100) * Math.sign(num);
-}
-
-function reset() {
-  startingTime = 5;
-  currentTime = startingTime * 60;
-  progressBar.textContent = "";
-  progressBar.style.width = "0px";
-  timerDisplay.textContent = "5: 00"; // update timer display
 }
 
 function openSettings() {
@@ -110,29 +154,31 @@ function startTimer() {
   giveUpBtn.style.opacity = "1";
   giveUpBtn.disabled = false;
   timerInterval = setInterval(updateTimer, 1000);
+  timerStarted = true;
 
   // warning texts
   document.getElementById("cantEdit").classList.remove("hidden");
   document.getElementById("alreadyExists").classList.add("hidden");
   document.getElementById("incorrectFormat").classList.add("hidden");
+  ifDisableDeleteBtns();
 }
 
 function giveUp() {
-  clearInterval(timerInterval);
-  reset();
-  document.getElementById("cantEdit").classList.add("hidden");
-  chrome.runtime.sendMessage({ action: "endTimer" });
+  // confirm again if user wants to end timer
+  questionContainer.style.display = "flex";
+  startBtn.style.display = "none";
+  giveUpBtn.style.display = "none";
 }
 
 function submitUrl() {
   const urlToAdd = document.getElementById("urlForm").value;
   if (ifValidURL(urlToAdd)) {
-    if (blockedDomains.includes(urlToAdd)) {
+    const domainName = getDomainName(urlToAdd);
+    if (blockedDomains.includes(domainName)) {
       document.getElementById("alreadyExists").classList.remove("hidden");
       document.getElementById("incorrectFormat").classList.add("hidden");
       return;
     }
-    const domainName = getDomainName(urlToAdd);
     blockedDomains.push(domainName);
     document.getElementById("incorrectFormat").classList.add("hidden");
     document.getElementById("alreadyExists").classList.add("hidden");
@@ -187,7 +233,6 @@ function addDomainToBlockedList(url) {
   newSite.appendChild(text);
   const deleteUrlBtn = document.createElement("div");
   const deleteImg = document.createElement("img");
-  deleteUrlBtn.classList.add("hidden");
   deleteUrlBtn.classList.add("deleteUrlBtn");
   deleteImg.src = "images/deleteURL.jpg";
   deleteImg.alt = "Delete site";
@@ -204,14 +249,6 @@ function addDomainToBlockedList(url) {
   });
   newSite.appendChild(deleteUrlBtn);
   newBlockedSiteDiv.appendChild(newSite);
-  newBlockedSiteDiv.onmouseover = function () {
-    // when user's mouse is over the div of a specific URL, display delete button
-    this.children[0].children[1].classList.remove("hidden");
-  };
-  newBlockedSiteDiv.onmouseout = function () {
-    // when user's mouse is over the div of a specific URL, display delete button
-    this.children[0].children[1].classList.add("hidden");
-  };
   listOfSitesContainer.appendChild(newBlockedSiteDiv);
 }
 
@@ -220,6 +257,29 @@ function updateBlockedList(blockedList) {
   for (let i = 0; i < blockedList.length; i++) {
     const currentURL = blockedList[i];
     addDomainToBlockedList(currentURL);
+  }
+}
+
+function ifDisableDeleteBtns() {
+  console.log("if disbale buttons", timerStarted);
+  const allDeleteBtns = document.querySelectorAll(".deleteUrlBtn");
+  for (let i = 0; i < allDeleteBtns.length; i++) {
+    if (timerStarted) {
+      allDeleteBtns[i].style.display = "none";
+    } else {
+      allDeleteBtns[i].style.display = "flex";
+    }
+  }
+}
+
+function handleClearList() {
+  const allUrls = document.querySelectorAll(".newBlockedSiteDiv");
+  if (allUrls.length >= 1) {
+    blockedDomains = [];
+    for (let i = 0; i < allUrls.length; i++) {
+      allUrls[i].remove();
+    }
+    chrome.runtime.sendMessage({ action: "clearDomainList" });
   }
 }
 /////////////////////// end of functions ///////////////////////
