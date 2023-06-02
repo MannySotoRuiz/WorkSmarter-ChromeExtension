@@ -132,7 +132,8 @@ function submitUrl() {
       document.getElementById("incorrectFormat").classList.add("hidden");
       return;
     }
-    blockedDomains.push(urlToAdd);
+    const domainName = getDomainName(urlToAdd);
+    blockedDomains.push(domainName);
     document.getElementById("incorrectFormat").classList.add("hidden");
     document.getElementById("alreadyExists").classList.add("hidden");
     document.getElementById("urlForm").value = "";
@@ -143,7 +144,7 @@ function submitUrl() {
     // send data to background script
     chrome.runtime.sendMessage({
       action: "addURL",
-      data: { addURL: urlToAdd },
+      data: { addURL: domainName },
     });
   } else {
     document.getElementById("incorrectFormat").classList.remove("hidden");
@@ -159,6 +160,11 @@ function ifValidURL(site) {
     console.log("INVALID URL");
     return false;
   }
+}
+
+function getDomainName(url) {
+  const parsedUrl = new URL(url);
+  return parsedUrl.hostname.replace(/^(?:https?:\/\/)?(?:www\.)?/i, "");
 }
 
 function removeURL(url) {

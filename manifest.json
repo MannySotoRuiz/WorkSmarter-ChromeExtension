@@ -24,7 +24,7 @@
   },
   "web_accessible_resources": [
     {
-      "resources": ["contentscript.css", "images/neverGiveUp.png"],
+      "resources": ["styles/contentscript.css", "images/neverGiveUp.png"],
       "matches": ["<all_urls>"]
     }
   ],
