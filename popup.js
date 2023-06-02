@@ -124,6 +124,7 @@ function updateTimer() {
     giveUpBtn.style.display = "none";
     resetBtn.classList.remove("hidden");
     questionContainer.style.display = "none";
+    chrome.runtime.sendMessage({ action: "endTimer" });
   }
 }
 

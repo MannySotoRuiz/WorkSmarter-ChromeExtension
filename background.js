@@ -1,5 +1,5 @@
 // variables
-let startingTime = 5;
+let startingTime = 0.2;
 let currentTime = startingTime * 60;
 let timerInterval;
 let blockedDomains = [];
@@ -48,15 +48,54 @@ function startTimer(time) {
     }
   }, 1000);
 
-  // check if current active tab needs blocking
-  getCurrentTab();
+  // go through all tabs and check if they need blocking
+  chrome.tabs.query({}, function (tabs) {
+    tabs.forEach(function (tab) {
+      const currentDomain = getDomainName(tab.url);
+      if (blockedDomains.includes(currentDomain)) {
+        chrome.scripting.executeScript(
+          {
+            target: { tabId: tab.id },
+            files: ["contentscript.js"],
+          },
+          function () {
+            const dataToSend = { remainingTime: currentTime, ifTimerStarted };
+            chrome.tabs.sendMessage(tab.id, {
+              action: "sendDataToContent",
+              data: dataToSend,
+            });
+          }
+        );
+      }
+    });
+  });
 }
 
 function endTimer() {
   ifTimerStarted = false;
   clearInterval(timerInterval);
-  startingTime = 5;
+  startingTime = 0.2;
   currentTime = startingTime * 60;
+  chrome.tabs.query({}, function (tabs) {
+    tabs.forEach(function (tab) {
+      const currentDomain = getDomainName(tab.url);
+      if (blockedDomains.includes(currentDomain)) {
+        chrome.scripting.executeScript(
+          {
+            target: { tabId: tab.id },
+            files: ["contentscript.js"],
+          },
+          function () {
+            const dataToSend = { remainingTime: currentTime, ifTimerStarted };
+            chrome.tabs.sendMessage(tab.id, {
+              action: "sendDataToContent",
+              data: dataToSend,
+            });
+          }
+        );
+      }
+    });
+  });
 }
 
 function addURLToBlockedList(addURL) {
@@ -88,9 +127,15 @@ try {
 
 // call this when the User changes tab and get the URL to see if contentscript.js needs to be injected or not
 try {
+  // tabs changed
   chrome.tabs.onActivated.addListener(function (activeInfo) {
-    console.log("Tabs changed");
     getCurrentTab();
+    console.log("user changed windows");
+    console.log(activeInfo);
+    chrome.tabs.get(activeInfo.tabId, function (tab) {
+      const urlTab = tab.url;
+      console.log("current tab url: " + urlTab);
+    });
   });
 } catch (e) {
   console.log("ERROR with onActivated");
@@ -100,9 +145,7 @@ try {
 function getCurrentTab() {
   chrome.tabs.query({ active: true, lastFocusedWindow: true }, (tabs) => {
     // the current tab is available in the 'tabs' array
-    let url = tabs[0].url;
     let tab_Id = tabs[0].id;
-    // console.log(url, tab_Id);
     try {
       attemptInject(tabs[0], tab_Id);
     } catch (e) {
@@ -116,12 +159,7 @@ function attemptInject(tab, tabId) {
   // remove http:// https:// and www. from start of string
   let testDomain = testURL.hostname.replace(/^(?:https?:\/\/)?(?:www\.)?/i, "");
   // if url is in the blocked domains list
-  console.log("should inject block?", {
-    array: blockedDomains,
-    host: testDomain,
-  });
   if (blockedDomains.includes(testDomain) && ifTimerStarted) {
-    console.log("execute content script");
     chrome.scripting.executeScript(
       {
         files: ["contentscript.js"],
@@ -135,7 +173,11 @@ function attemptInject(tab, tabId) {
         });
       }
     );
-  } else {
-    console.log("not a blocked domain or timer didnt start");
   }
+  return;
+}
+
+function getDomainName(url) {
+  const parsedUrl = new URL(url);
+  return parsedUrl.hostname.replace(/^(?:https?:\/\/)?(?:www\.)?/i, "");
 }

@@ -10,11 +10,9 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
         seconds >= 1 ? seconds : "00"
       }`;
     }
-
+    let timerInterval;
+    let ifBackgroundTimerActive = false;
     if (ifTimerStarted) {
-      let timerInterval;
-      let ifBackgroundTimerActive = false;
-
       if (!document.getElementById("changeBackground")) {
         let quotesOnline = [
           '"Focus on being productive instead of busy." --Tim Ferriss',
@@ -112,6 +110,25 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
             }
           }
         }, 1000);
+      }
+    } else {
+      if (document.getElementById("changeBackground")) {
+        clearInterval(timerInterval);
+        ifBackgroundTimerActive = false;
+        document.getElementById("changeBackground").remove(); // remove the blocker screen
+        let styles = document.querySelectorAll("link[rel=stylesheet]"); // get stylsheets
+        for (let i = 0; i < styles.length; i++) {
+          // loop through them until we find contentscript.css
+          if (styles[i].href.includes("contentscript.css")) {
+            try {
+              // then attempt to remove it from the current page
+              styles[i].parentNode.removeChild(styles[i]);
+            } catch (error) {
+              console.log("error trying to remove contentscript.css");
+              console.log(error);
+            }
+          }
+        }
       }
     }
   }
