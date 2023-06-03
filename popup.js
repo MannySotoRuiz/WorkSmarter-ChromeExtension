@@ -80,6 +80,19 @@ port.onMessage.addListener(async function (message) {
     }
   }
 });
+
+chrome.runtime.onMessage.addListener(async function (
+  request,
+  sender,
+  sendResponse
+) {
+  if (request.action === "timerUpdate") {
+    const timeLeft = await request.value;
+    let minutes = Math.floor(timeLeft / 60);
+    let seconds = timeLeft % 60;
+    timerDisplay.textContent = `${minutes}: ${seconds >= 1 ? seconds : "00"}`;
+  }
+});
 /////////////////////// event listeners ///////////////////////
 expandBtn.addEventListener("click", openSettings); // open settings
 collapseBtn.addEventListener("click", closeSettings); // close settings
@@ -146,14 +159,12 @@ function updateTimer() {
   const minutes = Math.floor(currentTime / 60);
   const seconds = currentTime % 60;
   timerDisplay.textContent = `${minutes}: ${seconds >= 1 ? seconds : "00"}`; // update timer display
-
   // update progress bar
   const originalTotalTime = startingTime * 60;
   const timePercent = Math.abs(currentTime / originalTotalTime - 1) * 100; // find time in percentage
   const timeInPixels = 200 * (roundTime(timePercent) / 100);
   progressBar.textContent = `${roundTime(timePercent)}%`;
   progressBar.style.width = `${timeInPixels}px`;
-
   if (currentTime <= 0) {
     clearInterval(timerInterval);
     timerStarted = false;

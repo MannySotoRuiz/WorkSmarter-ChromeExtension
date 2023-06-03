@@ -7,6 +7,7 @@ let timerInterval;
 let blockedDomains = [];
 let ifTimerStarted = false;
 let displayReset = false;
+let keepAliveInterval;
 
 // establish a connection with the popup script
 chrome.runtime.onConnect.addListener(function (port) {
@@ -55,10 +56,11 @@ function startTimer(time) {
     if (currentTime <= 0) {
       endTimer();
     }
+    // chrome.runtime.sendMessage({ action: "timerUpdate", value: currentTime });
   }, 1000);
 
-  // go through all tabs and check if they need blocking
   chrome.tabs.query({}, function (tabs) {
+    console.log("keeping alive");
     tabs.forEach(function (tab) {
       const currentDomain = getDomainName(tab.url);
       if (blockedDomains.includes(currentDomain)) {
@@ -78,6 +80,31 @@ function startTimer(time) {
       }
     });
   });
+
+  // go through all tabs and check if they need blocking
+  keepAliveInterval = setInterval(function () {
+    chrome.tabs.query({}, function (tabs) {
+      console.log("keeping alive");
+      tabs.forEach(function (tab) {
+        const currentDomain = getDomainName(tab.url);
+        if (blockedDomains.includes(currentDomain)) {
+          chrome.scripting.executeScript(
+            {
+              target: { tabId: tab.id },
+              files: ["contentscript.js"],
+            },
+            function () {
+              const dataToSend = { remainingTime: currentTime, ifTimerStarted };
+              chrome.tabs.sendMessage(tab.id, {
+                action: "sendDataToContent",
+                data: dataToSend,
+              });
+            }
+          );
+        }
+      });
+    });
+  }, 30000);
 }
 
 function endTimer() {
