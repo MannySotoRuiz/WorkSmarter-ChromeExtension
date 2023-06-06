@@ -8,17 +8,13 @@ Thank you for using the "Work Smarter" Chrome extension ("the Extension"). This 
 
 The Extension collects the following types of information:
 
-a. Storage: The Extension may store certain data on your device to provide personalized features and settings.
+a. Scripting: The Extension may utilize scripting to interact with websites and enhance user experience.
 
-b. Active Tab: The Extension requires access to the active tab to perform specific actions or provide functionality.
-
-c. Scripting: The Extension may utilize scripting to interact with websites and enhance user experience.
-
-d. Tabs: The Extension may access and manage tabs in your browser to perform certain tasks or display relevant information.
+b. Tabs: The Extension may access and manage tabs in your browser to perform certain tasks or display relevant information.
 
 ## Use of Information:
 
-When a user gives a domain of a website to block and the timer is on, we are using the data from your Chrome web browser to block the content of the website if it is one of the domains the user supplied. The extension uses data to know when a user changes tabs and changes websites of your current active tab to check if it is a domain given by the user. The chrome extension will never block any content from a domain that is not given by the user. Once the timer is off, the blocked domains that the user gave will be free to use. Our extension does not store any of the data that is being tracked at all. We do not transfer any data to any 3rd party servers. 
+When a user gives a domain of a website to block and the timer is on, we are using the data from your Chrome web browser to block the content of the website if it is one of the domains the user supplied. The extension uses data to know when a user changes tabs and changes websites of your current active tab to check if it is a domain given by the user. The chrome extension will never block any content from a domain that is not given by the user. Once the timer is off, the blocked domains that the user gave will be free to use. Our extension does not store any of the data that is being tracked at all. We do not transfer any data to any 3rd party servers.
 
 ## Changes to the Privacy Policy:
 

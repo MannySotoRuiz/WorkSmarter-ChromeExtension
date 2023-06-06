@@ -1,12 +1,12 @@
 {
   "name": "Work Smarter",
-  "description": "Work Smarter - Elimanate Distractions, Be Productive",
+  "description": "Work Smarter - Eliminate Distractions, Be Productive",
   "version": "1.0",
   "manifest_version": 3,
   "background": {
     "service_worker": "background.js"
   },
-  "permissions": ["storage", "activeTab", "scripting", "tabs"],
+  "permissions": ["scripting", "tabs"],
   "action": {
     "default_popup": "popup.html",
     "default_icon": {
