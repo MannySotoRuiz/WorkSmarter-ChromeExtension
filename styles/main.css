@@ -277,6 +277,10 @@ body {
   margin: 0px;
 }
 
+#blockedSitesContainer p {
+  font-size: 15px;
+}
+
 .titleLinks {
   font-size: 15px;
 }

@@ -15,6 +15,7 @@ const questionContainer = document.getElementById("questionContainer");
 const cancelBtn = document.getElementById("cancel-giveUp");
 const yesGiveUpBtn = document.getElementById("yes-giveUp");
 const clearBtn = document.getElementById("clearBtn");
+const emptyListText = document.getElementById("emptyListText");
 
 // variables
 let startingTime = 5;
@@ -23,6 +24,12 @@ let timerInterval;
 let blockedDomains = [];
 let timerStarted = false;
 let ifBackgroundTimerActive = false;
+
+if (blockedDomains.length === 0) {
+  emptyListText.classList.remove("hidden");
+} else {
+  emptyListText.classList.add("hidden");
+}
 
 // connect with the background script
 const port = chrome.runtime.connect();
@@ -42,6 +49,11 @@ port.onMessage.addListener(async function (message) {
     startingTime = originalTime;
     currentTime = timeRemaining;
     ifBackgroundTimerActive = ifTimerStarted;
+    if (blockedList.length === 0) {
+      emptyListText.classList.remove("hidden");
+    } else {
+      emptyListText.classList.add("hidden");
+    }
     updateBlockedList(blockedList);
     let minutes = Math.floor(currentTime / 60);
     let seconds = currentTime % 60;
@@ -137,6 +149,7 @@ function handleResetClick() {
   document.getElementById("cantEdit").classList.add("hidden");
   ifDisableDeleteBtns();
   clearBtn.disabled = false;
+  submitUrlBtn.disabled = false;
   chrome.runtime.sendMessage({ action: "handleResetClick" });
 }
 
@@ -213,6 +226,7 @@ function startTimer() {
   ifDisableDeleteBtns();
 
   clearBtn.disabled = true;
+  submitUrlBtn.disabled = true;
 }
 
 function giveUp() {
@@ -232,6 +246,7 @@ function submitUrl() {
       return;
     }
     blockedDomains.push(domainName);
+    emptyListText.classList.add("hidden");
     document.getElementById("incorrectFormat").classList.add("hidden");
     document.getElementById("alreadyExists").classList.add("hidden");
     document.getElementById("urlForm").value = "";
@@ -272,6 +287,9 @@ function removeURL(url) {
       blockedDomains.splice(i, 1);
       break;
     }
+  }
+  if (blockedDomains.length === 0) {
+    emptyListText.classList.remove("hidden");
   }
 }
 
@@ -332,6 +350,7 @@ function handleClearList() {
     }
     chrome.runtime.sendMessage({ action: "clearDomainList" });
   }
+  emptyListText.classList.remove("hidden");
 }
 
 function handleAddTime() {
